@@ -1,0 +1,433 @@
+export component AppWindow inherits Window {
+    in property <int> cpu-temp: -1;
+    in property <int> cpu-load: 0;
+    in property <int> cpu-fan: -1;
+    in property <int> gpu-temp: -1;
+    in property <int> gpu-load: -1;
+    in property <int> gpu-fan: -1;
+    in property <int> mode: 1;
+    in property <int> fan-mode: 1;
+    in property <bool> connected: false;
+    in property <bool> service-up: false;
+    in property <bool> installing: false;
+    in property <string> status-text: "连接中…";
+
+    callback set-mode(int);
+    callback close-requested();
+    callback install-requested();
+
+    title: "Nitro Control";
+    width: 360px;
+    height: 236px;
+    no-frame: true;
+    always-on-top: true;
+    background: #0a0d12;
+    icon: @image-url("icon.png");
+    default-font-family: "Microsoft YaHei UI";
+    default-font-size: 10px;
+
+    // panel
+    Rectangle {
+        x: 0;
+        y: 0;
+        width: parent.width;
+        height: parent.height;
+        border-radius: 18px;
+        background: #0a0d12;
+        border-width: 1px;
+        border-color: #232a33;
+    }
+
+    // header
+    Rectangle {
+        x: 14px;
+        y: 15px;
+        width: 13px;
+        height: 13px;
+        border-radius: 4px;
+        background: #2ee6c5;
+    }
+    Text {
+        x: 35px;
+        y: 12px;
+        text: "NITRO";
+        color: #eef4fb;
+        font-size: 10.5px;
+        font-weight: 700;
+    }
+    Text {
+        x: 83px;
+        y: 15px;
+        text: "CONTROL";
+        color: #5d6a7c;
+        font-size: 7.5px;
+    }
+
+    close-touch := TouchArea {
+        x: parent.width - 34px;
+        y: 10px;
+        width: 20px;
+        height: 20px;
+        clicked => {
+            root.close-requested();
+        }
+        Text {
+            x: 0;
+            y: -1px;
+            width: 20px;
+            height: 20px;
+            text: "×";
+            color: close-touch.has-hover ? #eef4fb : #5d6a7c;
+            font-size: 14px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    pin-touch := TouchArea {
+        x: parent.width - 58px;
+        y: 10px;
+        width: 20px;
+        height: 20px;
+        clicked => {
+            root.always-on-top = !root.always-on-top;
+        }
+        Rectangle {
+            x: 7px;
+            y: 4px;
+            width: 6px;
+            height: 6px;
+            border-radius: 3px;
+            border-width: 1px;
+            border-color: pin-touch.has-hover ? #eef4fb : #5d6a7c;
+        }
+        Rectangle {
+            x: 9.5px;
+            y: 10px;
+            width: 1px;
+            height: 5px;
+            background: pin-touch.has-hover ? #eef4fb : #5d6a7c;
+        }
+    }
+
+    // mode row
+    Rectangle {
+        x: 14px;
+        y: 38px;
+        width: parent.width - 28px;
+        height: 32px;
+        border-radius: 9px;
+        background: #07090d;
+        border-width: 1px;
+        border-color: #20242b;
+    }
+
+    mode0 := TouchArea {
+        x: 17px;
+        y: 41px;
+        width: 106px;
+        height: 26px;
+        clicked => {
+            root.set-mode(0);
+        }
+        Rectangle {
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            background: root.mode == 0 ? #123f3a : (mode0.has-hover ? #151a22 : transparent);
+            border-width: root.mode == 0 ? 1px : 0px;
+            border-color: #2ee6c5;
+        }
+        Text {
+            width: 100%;
+            height: 100%;
+            text: "静音";
+            color: root.mode == 0 ? #d8fff8 : #8a97a9;
+            font-size: 10.5px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    mode1 := TouchArea {
+        x: 127px;
+        y: 41px;
+        width: 106px;
+        height: 26px;
+        clicked => {
+            root.set-mode(1);
+        }
+        Rectangle {
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            background: root.mode == 1 ? #123f3a : (mode1.has-hover ? #151a22 : transparent);
+            border-width: root.mode == 1 ? 1px : 0px;
+            border-color: #2ee6c5;
+        }
+        Text {
+            width: 100%;
+            height: 100%;
+            text: "平衡";
+            color: root.mode == 1 ? #d8fff8 : #8a97a9;
+            font-size: 10.5px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    mode2 := TouchArea {
+        x: 237px;
+        y: 41px;
+        width: 106px;
+        height: 26px;
+        clicked => {
+            root.set-mode(4);
+        }
+        Rectangle {
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            background: root.mode == 4 ? #3d1d21 : (mode2.has-hover ? #151a22 : transparent);
+            border-width: root.mode == 4 ? 1px : 0px;
+            border-color: #ff6b6b;
+        }
+        Text {
+            width: 100%;
+            height: 100%;
+            text: "性能";
+            color: root.mode == 4 ? #ffd0d0 : #8a97a9;
+            font-size: 10.5px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    // CPU card
+    Rectangle {
+        x: 14px;
+        y: 78px;
+        width: 162px;
+        height: parent.height - 78px - 36px;
+        border-radius: 11px;
+        background: #10151d;
+        border-width: 1px;
+        border-color: #20242b;
+    }
+    Rectangle {
+        x: 26px;
+        y: 89px;
+        width: 5px;
+        height: 5px;
+        border-radius: 2.5px;
+        background: #4cc2ff;
+    }
+    Text {
+        x: 33px;
+        y: 85px;
+        text: "CPU";
+        color: #8a97a9;
+        font-size: 8.5px;
+    }
+    Text {
+        x: 25px;
+        y: 98px;
+        text: root.cpu-temp < 0 ? "--" : "\{root.cpu-temp}";
+        color: root.cpu-temp >= 85 ? #ff6b6b : #eef4fb;
+        font-size: 30px;
+        font-weight: 600;
+    }
+    Text {
+        x: 74px;
+        y: 116px;
+        text: "°C";
+        color: #8a97a9;
+        font-size: 9px;
+    }
+    Rectangle {
+        x: 25px;
+        y: 166px;
+        width: 140px;
+        height: 3px;
+        border-radius: 2px;
+        background: #1b222c;
+    }
+    Rectangle {
+        x: 25px;
+        y: 166px;
+        width: root.cpu-load <= 0 ? 2px : (140px * root.cpu-load) / 100;
+        height: 3px;
+        border-radius: 2px;
+        background: #4cc2ff;
+    }
+    Text {
+        x: 25px;
+        y: 180px;
+        text: "\{root.cpu-load}%";
+        color: #5d6a7c;
+        font-size: 8.5px;
+    }
+    Text {
+        x: 85px;
+        y: 180px;
+        width: 80px;
+        text: root.cpu-fan < 0 ? "-- RPM" : "\{root.cpu-fan} RPM";
+        color: #5d6a7c;
+        font-size: 8.5px;
+        horizontal-alignment: right;
+    }
+
+    // GPU card
+    Rectangle {
+        x: 184px;
+        y: 78px;
+        width: 162px;
+        height: parent.height - 78px - 36px;
+        border-radius: 11px;
+        background: #10151d;
+        border-width: 1px;
+        border-color: #20242b;
+    }
+    Rectangle {
+        x: 196px;
+        y: 89px;
+        width: 5px;
+        height: 5px;
+        border-radius: 2.5px;
+        background: #a78bfa;
+    }
+    Text {
+        x: 203px;
+        y: 85px;
+        text: "GPU";
+        color: #8a97a9;
+        font-size: 8.5px;
+    }
+    Text {
+        x: 195px;
+        y: 98px;
+        text: root.gpu-temp < 0 ? "--" : "\{root.gpu-temp}";
+        color: root.gpu-temp >= 85 ? #ff6b6b : #eef4fb;
+        font-size: 30px;
+        font-weight: 600;
+    }
+    Text {
+        x: 244px;
+        y: 116px;
+        text: "°C";
+        color: #8a97a9;
+        font-size: 9px;
+    }
+    Rectangle {
+        x: 195px;
+        y: 166px;
+        width: 140px;
+        height: 3px;
+        border-radius: 2px;
+        background: #1b222c;
+    }
+    Rectangle {
+        x: 195px;
+        y: 166px;
+        width: root.gpu-load <= 0 ? 2px : (140px * root.gpu-load) / 100;
+        height: 3px;
+        border-radius: 2px;
+        background: #a78bfa;
+    }
+    Text {
+        x: 195px;
+        y: 180px;
+        text: root.gpu-load < 0 ? "--%" : "\{root.gpu-load}%";
+        color: #5d6a7c;
+        font-size: 8.5px;
+    }
+    Text {
+        x: 255px;
+        y: 180px;
+        width: 80px;
+        text: root.gpu-fan < 0 ? "-- RPM" : "\{root.gpu-fan} RPM";
+        color: #5d6a7c;
+        font-size: 8.5px;
+        horizontal-alignment: right;
+    }
+
+    // footer: disconnected
+    if !root.connected : Rectangle {
+        x: 14px;
+        y: parent.height - 30px;
+        width: parent.width - 28px;
+        height: 24px;
+        border-radius: 7px;
+        background: #2a1518;
+        border-width: 1px;
+        border-color: #5a282d;
+    }
+    if !root.connected : Text {
+        x: 23px;
+        y: parent.height - 30px;
+        width: 200px;
+        height: 24px;
+        text: root.service-up ? "后台服务无 WMI 权限" : "后台服务未运行";
+        color: #ffbebe;
+        font-size: 9px;
+        vertical-alignment: center;
+    }
+    install-touch := TouchArea {
+        x: parent.width - 28px - 84px;
+        y: parent.height - 27px;
+        width: 78px;
+        height: 18px;
+        clicked => {
+            root.install-requested();
+        }
+        visible: !root.connected;
+        Rectangle {
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+            background: install-touch.has-hover ? #5a282d : #3d1d21;
+        }
+        Text {
+            width: 100%;
+            height: 100%;
+            text: root.installing ? "启动中…" : (root.service-up ? "重启服务" : "启动服务");
+            color: #ffd0d0;
+            font-size: 8.5px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    // footer: connected
+    if root.connected : Rectangle {
+        x: 17px;
+        y: parent.height - 19px;
+        width: 5px;
+        height: 5px;
+        border-radius: 2.5px;
+        background: #2ee6c5;
+    }
+    if root.connected : Text {
+        x: 25px;
+        y: parent.height - 25px;
+        text: "实时";
+        color: #2ee6c5;
+        font-size: 8.5px;
+    }
+    if root.connected : Text {
+        x: parent.width - 14px - 80px;
+        y: parent.height - 25px;
+        width: 80px;
+        text: root.fan-mode == 2 ? "风扇最大" : (root.fan-mode == 3 ? "风扇自定义" : "风扇自动");
+        color: #5d6a7c;
+        font-size: 8.5px;
+        horizontal-alignment: right;
+    }
+
+    WindowMoveArea {
+        x: 0;
+        y: 0;
+        width: parent.width - 70px;
+        height: 36px;
+    }
+}
