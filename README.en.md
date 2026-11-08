@@ -89,7 +89,7 @@ NSIS is required. Install it with winget, or use the NSIS bundle shipped with Ta
 
 Output:
 
-    dist\NitroControl-Setup-0.1.0.exe
+    dist\NitroControl-Setup-0.1.1.exe
 
 GitHub Actions builds the same installer on windows-latest with chocolatey NSIS.
 

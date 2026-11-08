@@ -2,7 +2,9 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 Push-Location $root
 try {
-    cargo build --release
+    $cargo = (Get-Command cargo -ErrorAction SilentlyContinue).Source
+    if (-not $cargo) { $cargo = Join-Path $env:USERPROFILE '.cargo\bin\cargo.exe' }
+    & $cargo build --release
     New-Item -ItemType Directory -Force -Path (Join-Path $root 'dist') | Out-Null
 
     $pf86 = [Environment]::GetEnvironmentVariable('ProgramFiles(x86)')
@@ -23,7 +25,7 @@ try {
     } finally {
         Pop-Location
     }
-    Get-Item (Join-Path $root 'dist\NitroControl-Setup-0.1.0.exe') | Select-Object FullName,Length
+    Get-Item (Join-Path $root 'dist\NitroControl-Setup-0.1.1.exe') | Select-Object FullName,Length
 } finally {
     Pop-Location
 }

@@ -2,7 +2,7 @@
 !include "MUI2.nsh"
 
 !define APPNAME "Nitro Control"
-!define VERSION "0.1.0"
+!define VERSION "0.1.1"
 !define PUBLISHER "Nitro Control contributors"
 !define SERVICE "NitroControlBroker"
 
@@ -12,22 +12,22 @@ Var LEN
 Var DATADIR
 
 Name "Nitro Control"
-Caption "Nitro Control 0.1.0 安装程序"
-OutFile "..\dist\NitroControl-Setup-0.1.0.exe"
+Caption "Nitro Control 0.1.1 安装程序"
+OutFile "..\dist\NitroControl-Setup-0.1.1.exe"
 InstallDir "$PROGRAMFILES64\NitroControl"
 InstallDirRegKey HKLM "Software\NitroControl" "InstallDir"
 RequestExecutionLevel admin
 SetCompressor /SOLID lzma
 SetCompressorDictSize 32
-BrandingText "Nitro Control 0.1.0"
+BrandingText "Nitro Control 0.1.1"
 Icon "..\widget\assets\icon.ico"
 UninstallIcon "..\widget\assets\icon.ico"
-VIProductVersion "0.1.0.0"
+VIProductVersion "0.1.1.0"
 VIAddVersionKey "ProductName" "Nitro Control"
 VIAddVersionKey "CompanyName" "Nitro Control contributors"
 VIAddVersionKey "FileDescription" "Nitro Control installer"
-VIAddVersionKey "FileVersion" "0.1.0.0"
-VIAddVersionKey "ProductVersion" "0.1.0"
+VIAddVersionKey "FileVersion" "0.1.1.0"
+VIAddVersionKey "ProductVersion" "0.1.1"
 VIAddVersionKey "LegalCopyright" "GPL-3.0-or-later"
 
 !define MUI_ABORTWARNING
@@ -113,7 +113,7 @@ service_ok:
 
   WriteRegStr HKLM "Software\NitroControl" "InstallDir" "$INSTDIR"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\NitroControl" "DisplayName" "Nitro Control"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\NitroControl" "DisplayVersion" "0.1.0"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\NitroControl" "DisplayVersion" "0.1.1"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\NitroControl" "Publisher" "Nitro Control contributors"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\NitroControl" "DisplayIcon" "$INSTDIR\nitro-widget.exe"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\NitroControl" "InstallLocation" "$INSTDIR"

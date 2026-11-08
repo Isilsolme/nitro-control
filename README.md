@@ -89,7 +89,7 @@ UI 启动时通过 SCM 拉起服务，服务空闲 5 分钟后自动停止。
 
 输出：
 
-    dist\NitroControl-Setup-0.1.0.exe
+    dist\NitroControl-Setup-0.1.1.exe
 
 GitHub Actions 会在 windows-latest 上用 chocolatey 安装 NSIS 并构建同一个安装器。
 
